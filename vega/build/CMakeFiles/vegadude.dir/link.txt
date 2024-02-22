@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -ffunction-sections -fdata-sections -Wl,--gc-sections -s CMakeFiles/vegadude.dir/logger.cpp.o CMakeFiles/vegadude.dir/main.cpp.o CMakeFiles/vegadude.dir/crc.cpp.o CMakeFiles/vegadude.dir/device.cpp.o CMakeFiles/vegadude.dir/serialdevice.cpp.o CMakeFiles/vegadude.dir/xmodem.cpp.o -o vegadude 
