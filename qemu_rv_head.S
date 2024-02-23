@@ -46,8 +46,11 @@ __start:
 
   csrr a0, mhartid
 
-  /* Set stack pointer to the idle thread stack */
-
+   /* Set stack pointer to the idle thread stack */
+ 
+  li t0, 0x10000100  
+  li t1, 0x31
+  sb t1, 0(t0)
   bnez a0, 1f
   la   sp, QEMU_RV_IDLESTACK_TOP
   j    2f
@@ -108,9 +111,9 @@ __start:
   la   t0, __trap_vec
   csrw mtvec, t0
 
-  //li t0, 0x10000100
-  //li t1, 0x31
-  //sb t1, 0(t0)
+  li t0, 0x10000100
+  li t1, 0x32
+  sb t1, 0(t0)
 
   /* Jump to qemu_rv_start */
 
