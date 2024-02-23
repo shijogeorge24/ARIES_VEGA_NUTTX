@@ -1,7 +1,0 @@
-/home/shijo/vega/build/CMakeFiles/vegadude.dir
-/home/shijo/vega/build/CMakeFiles/edit_cache.dir
-/home/shijo/vega/build/CMakeFiles/rebuild_cache.dir
-/home/shijo/vega/build/CMakeFiles/list_install_components.dir
-/home/shijo/vega/build/CMakeFiles/install.dir
-/home/shijo/vega/build/CMakeFiles/install/local.dir
-/home/shijo/vega/build/CMakeFiles/install/strip.dir
