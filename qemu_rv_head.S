@@ -44,36 +44,14 @@ __start:
   /* Preserve a1 as it contains the pointer to DTB */
   /* Load mhartid (cpuid) */
 
-  csrr t2, mhartid
-  fence
-  mv a0,t2
+  csrr a0, mhartid
+ // fence
+//  mv a0,t2
    /* Set stack pointer to the idle thread stack */
-//  li t2,0x0
-
-  //fence rw,w
-  li t0,0x10000100
-  fence
-  fence.i 
- /* Print the Hart ID */
-  addi t1,t2,0x30
-  fence
-  fence.i 
- /* Store byte from Register t1 to UART Base Address, Offset 0 */
-  sb t1,0(t0) 
-  fence
-  fence.i 
-
-  sb t1,0(t0) 
- // li t0, 0x10000100  
-  //li t1, 0x31
-  //sb t1, 0(t0)
-  bnez t2, 1f
+  bnez a0, 1f
   la   sp, QEMU_RV_IDLESTACK_TOP
-  j    3f
+  j    2f
 1:
-  li t0, 0x10000100
-  li t1, 0x31
-  sb t1, 0(t0)
   /* Load the number of CPUs that the kernel supports */
 
 #ifdef CONFIG_SMP
@@ -83,15 +61,24 @@ __start:
 #endif
 
   /* If a0 (mhartid) >= t1 (the number of CPUs), stop here */
-
-
+   //fence.i
+  fence
+  li t0, 0x10000100
+  li t1, 0x31
+  sb t1, 0(t0)
+  fence
   blt  t2, t1, 2f
   csrw mie, zero
   wfi
 
 3:
   /* To get g_cpu_basestack[mhartid], must get g_cpu_basestack first */
-
+//  fence.i
+  fence
+  li t0, 0x10000100
+  li t1, 0x33
+  sb t1, 0(t0)
+  fence
   la   t0, g_cpu_basestack
 
   /* Offset = pointer width * hart id */
@@ -119,23 +106,19 @@ __start:
 
 2:
 
-  /* Disable all interrupts (i.e. timer, external) in mie */
+  /* Dsable all interrupts (i.e. timer, external) in mie */
 
-	csrw	mie, zero
 
-  la   t0, __trap_vec
-  csrw mtvec, t0
-
+ // fence.i
+  fence
   li t0, 0x10000100
   li t1, 0x32
   sb t1, 0(t0)
-  fence 
-  fence.i
-  li t1, 0x34
-
-  sb t1, 0(t0)
   fence
-  fence.i 
+  csrw mie, zero
+  la   t0, __trap_vec
+  csrw mtvec, t0
+
   /* Jump to qemu_rv_start */
 
   jal  x1, qemu_rv_start
