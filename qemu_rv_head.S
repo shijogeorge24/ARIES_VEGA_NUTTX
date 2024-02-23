@@ -44,18 +44,36 @@ __start:
   /* Preserve a1 as it contains the pointer to DTB */
   /* Load mhartid (cpuid) */
 
-  csrr a0, mhartid
-
+  csrr t2, mhartid
+  fence
+  mv a0,t2
    /* Set stack pointer to the idle thread stack */
- 
-  li t0, 0x10000100  
+//  li t2,0x0
+
+  //fence rw,w
+  li t0,0x10000100
+  fence
+  fence.i 
+ /* Print the Hart ID */
+  addi t1,t2,0x30
+  fence
+  fence.i 
+ /* Store byte from Register t1 to UART Base Address, Offset 0 */
+  sb t1,0(t0) 
+  fence
+  fence.i 
+
+  sb t1,0(t0) 
+ // li t0, 0x10000100  
+  //li t1, 0x31
+  //sb t1, 0(t0)
+  bnez t2, 1f
+  la   sp, QEMU_RV_IDLESTACK_TOP
+  j    3f
+1:
+  li t0, 0x10000100
   li t1, 0x31
   sb t1, 0(t0)
-  bnez a0, 1f
-  la   sp, QEMU_RV_IDLESTACK_TOP
-  j    2f
-1:
-
   /* Load the number of CPUs that the kernel supports */
 
 #ifdef CONFIG_SMP
@@ -67,10 +85,7 @@ __start:
   /* If a0 (mhartid) >= t1 (the number of CPUs), stop here */
 
 
-  li t0, 0x10000100
-  li t1, 0x31
-  sb t1, 0(t0)
-  blt  a0, t1, 3f
+  blt  t2, t1, 2f
   csrw mie, zero
   wfi
 
@@ -114,7 +129,13 @@ __start:
   li t0, 0x10000100
   li t1, 0x32
   sb t1, 0(t0)
+  fence 
+  fence.i
+  li t1, 0x34
 
+  sb t1, 0(t0)
+  fence
+  fence.i 
   /* Jump to qemu_rv_start */
 
   jal  x1, qemu_rv_start
